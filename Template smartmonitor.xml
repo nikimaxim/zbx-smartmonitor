@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>4.4</version>
+    <date>2019-10-17T05:39:21Z</date>
+    <groups>
+        <group>
+            <name>Templates Users</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template SMARTMONTOOLS</template>
+            <name>Template SMARTMONTOOLS</name>
+            <groups>
+                <group>
+                    <name>Templates Users</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>SMART monitoring (smartctl)</name>
+                </application>
+            </applications>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>smartctl-storage-discovery</name>
+                    <key>storage.discovery</key>
+                    <delay>1d;1h/1-7,08:00-21:00</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#STORAGE.SMART}</macro>
+                                <value>1</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: smartctl</name>
+                            <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            <delay>1h;10m/1-7,08:00-21:00</delay>
+                            <history>30d</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{str(&quot;FAILING_NOW&quot;)}=1</expression>
+                                    <name>{#STORAGE.NAME}: one or more SMART attributes are FAILING_NOW</name>
+                                    <priority>AVERAGE</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
+                                        </dependency>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: Test result</name>
+                            <type>DEPENDENT</type>
+                            <key>storage.health[&quot;{#STORAGE.CMD}&quot;]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:SMART overall-health self-assessment test result:|SMART Health Status:) +\b([\S ]+)
+\1</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
+                                    <name>{#STORAGE.NAME}: SMART status is not OK</name>
+                                    <priority>WARNING</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{str(&quot;FAILED!&quot;)}=1</expression>
+                                    <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                    <priority>AVERAGE</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: Device model</name>
+                            <type>DEPENDENT</type>
+                            <key>storage.model[&quot;{#STORAGE.CMD}&quot;]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:Vendor: +(.+)\nProduct:|[Dd]evice [Mm]odel:|[Mm]odel [Nn]umber:) +(.+)
+\1 \2</params>
+                                </step>
+                                <step>
+                                    <type>LTRIM</type>
+                                    <params><![CDATA[ ]]></params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: Serial number</name>
+                            <type>DEPENDENT</type>
+                            <key>storage.sn[&quot;{#STORAGE.CMD}&quot;]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[Ss]erial [Nn]umber: +(.+)
+\1</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{diff()}=1</expression>
+                                    <recovery_mode>NONE</recovery_mode>
+                                    <name>{#STORAGE.NAME}: Disk has been replaced (new serial number received)</name>
+                                    <priority>INFO</priority>
+                                    <description>Last value: {ITEM.LASTVALUE1}.&#13;
+Device serial number has changed. Ack to close</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 05 Reallocated sectors count</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct]</key>
+                            <delay>0</delay>
+                            <description>HDD&#13;
+SSD&#13;
+NVME</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:5 Reallocated|Elements in grown defect list:|5 Retired_Block_Count).+ ([0-9]+)
+\1</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{diff()}&lt;&gt;0</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{last()}=0</recovery_expression>
+                                    <name>{#STORAGE.NAME}: SMART Reallocated Sectors Count has been registered</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
+                                        </dependency>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 09 Power on hours</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 09 Power_On_Hours]</key>
+                            <delay>0</delay>
+                            <units>s</units>
+                            <description>HDD&#13;
+SSD&#13;
+NVME</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JAVASCRIPT</type>
+                                    <params>return value.replace(/[\u00A0]/g, '')</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:9 Power_On_Hours|Power On Hours:).+ ([^\(\d*\)]\d+)
+\1</params>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>3600</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 10 Spin retry count</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 10 Spin_Retry_Count]</key>
+                            <delay>0</delay>
+                            <description>HDD</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>10 Spin_Retry_Count.+ ([0-9]+)
+\1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{delta(7d)}&gt;0</expression>
+                                    <name>{#STORAGE.NAME}: SMART Spin Retry Count has been registered</name>
+                                    <url>https://kb.acronis.com/content/9110</url>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 190/194 Temperature</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius]</key>
+                            <delay>0</delay>
+                            <units>°С</units>
+                            <description>HDD&#13;
+SSD&#13;
+NVME</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:194 Temperature[^(\n]+|190 Airflow_Temperature[^(\n]+|Drive Temperature:|Temperature:|190 Temperature_Case).+  ([0-9]+)
+\1</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(5m)}&gt;{$TEMP_CRIT} and&#13;
+{last()}&lt;100</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
+                                    <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{avg(5m)}&gt;{$TEMP_WARN}</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{avg(5m)}&lt;{$TEMP_WARN}-3</recovery_expression>
+                                    <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
+                                    <priority>WARNING</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
+                                            <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&gt;{$TEMP_CRIT} and&#13;
+{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].last()}&lt;100</expression>
+                                            <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 197 Current pending sector count</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 197 Current_Pending_Sector]</key>
+                            <delay>0</delay>
+                            <description>HDD</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>197 Current_Pending_Sector.+ ([0-9]+)
+\1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{delta(3d)}&gt;0</expression>
+                                    <name>{#STORAGE.NAME}: SMART Current Pending Sector counter incremented</name>
+                                    <priority>WARNING</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART Reallocated Sectors Count has been registered</name>
+                                            <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].diff()}&lt;&gt;0</expression>
+                                            <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].last()}=0</recovery_expression>
+                                        </dependency>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
+                                        </dependency>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 198 Uncorrectable errors count</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 198 Offline_Uncorrectable]</key>
+                            <delay>0</delay>
+                            <description>HDD&#13;
+SSD</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>Offline_Uncorrectable.+ ([0-9]+)
+\1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{delta(7d)}&gt;0</expression>
+                                    <name>{#STORAGE.NAME}: SMART (Offline) Uncorrectable Sector Count has been registered</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
+                                        </dependency>
+                                        <dependency>
+                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 199/218 CRC error count</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 199/218 UDMA_CRC_Error]</key>
+                            <delay>0</delay>
+                            <description>HDD&#13;
+SSD</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:199 UDMA_CRC_Error|199 CRC_Error_Count|Non-medium error count:|Media and Data Integrity Errors:|199 SATA_CRC_Error|218 CRC_Error_Count).+ ([0-9]+)
+\1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;100 and {delta(1d)}&gt;0</expression>
+                                    <name>{#STORAGE.NAME}: SMART UltraDMA CRC Error Count too high: {ITEM.LASTVALUE}. Check cable!</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Smartctl {#STORAGE.NAME} Temperature</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>1A7C11</color>
+                                    <item>
+                                        <host>Template SMARTMONTOOLS</host>
+                                        <key>storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$SMARTCTL_OK_STATUS:&quot;SAS&quot;}</macro>
+                    <value>OK</value>
+                </macro>
+                <macro>
+                    <macro>{$SMARTCTL_OK_STATUS:&quot;SATA&quot;}</macro>
+                    <value>PASSED</value>
+                </macro>
+                <macro>
+                    <macro>{$TEMP_CRIT}</macro>
+                    <value>65</value>
+                </macro>
+                <macro>
+                    <macro>{$TEMP_WARN}</macro>
+                    <value>50</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
