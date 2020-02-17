@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2019-10-17T05:39:21Z</date>
+    <date>2020-02-17T07:56:44Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -150,7 +150,7 @@
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>[Ss]erial [Nn]umber: +(.+)
+                                    <params>[Ss]erial [Nn]umber:\s+([\d-\w]+)+
 \1</params>
                                 </step>
                             </preprocessing>
@@ -163,8 +163,6 @@
                                     <recovery_mode>NONE</recovery_mode>
                                     <name>{#STORAGE.NAME}: Disk has been replaced (new serial number received)</name>
                                     <priority>INFO</priority>
-                                    <description>Last value: {ITEM.LASTVALUE1}.&#13;
-Device serial number has changed. Ack to close</description>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>
                             </trigger_prototypes>
@@ -196,7 +194,7 @@ NVME</description>
                                 <trigger_prototype>
                                     <expression>{diff()}&lt;&gt;0</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
-                                    <recovery_expression>{last()}=0</recovery_expression>
+                                    <recovery_expression>{last()}=0 or {delta(864000)}=0</recovery_expression>
                                     <name>{#STORAGE.NAME}: SMART Reallocated Sectors Count has been registered</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
@@ -273,7 +271,6 @@ NVME</description>
                                 <trigger_prototype>
                                     <expression>{delta(7d)}&gt;0</expression>
                                     <name>{#STORAGE.NAME}: SMART Spin Retry Count has been registered</name>
-                                    <url>https://kb.acronis.com/content/9110</url>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>
@@ -364,7 +361,7 @@ NVME</description>
                                         <dependency>
                                             <name>{#STORAGE.NAME}: SMART Reallocated Sectors Count has been registered</name>
                                             <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].diff()}&lt;&gt;0</expression>
-                                            <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].last()}=0</recovery_expression>
+                                            <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].last()}=0 or {Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].delta(864000)}=0</recovery_expression>
                                         </dependency>
                                         <dependency>
                                             <name>{#STORAGE.NAME}: SMART status is not OK</name>
@@ -486,7 +483,7 @@ SSD</description>
                 </macro>
                 <macro>
                     <macro>{$TEMP_WARN}</macro>
-                    <value>50</value>
+                    <value>55</value>
                 </macro>
             </macros>
         </template>
