@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2020-02-17T07:56:44Z</date>
+    <date>2020-03-02T12:56:26Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -150,7 +150,7 @@
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>[Ss]erial [Nn]umber:\s+([\d-\w]+)+
+                                    <params>[Ss]erial [Nn]umber:\s+([\d\w-]+)
 \1</params>
                                 </step>
                             </preprocessing>

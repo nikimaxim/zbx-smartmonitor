@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #    .VERSION
-#    0.1
+#    0.2
 #
 #    .DESCRIPTION
 #    Author: Nikitin Maksim
@@ -66,15 +66,20 @@ LLDSmart()
                 if [ -n $d ]; then
                     storage_model=$d
                 else
-                    p=$(/bin/echo $temp_info | grep "Product:" | cut -f2 -d":" | sed -e 's/^\s*//')
-                    if [ -n $p ]; then
-                        storage_model=$p
+                    m=$(/bin/echo $temp_info | grep "Model Number:" | cut -f2 -d":" | sed -e 's/^\s*//')
+                    if [ -n $m ]; then
+                        storage_model=$m
                     else
-                        v=$(/bin/echo $temp_info | grep "Vendor:" | cut -f2 -d":" | sed -e 's/^\s*//')
-                        if [ -n $v ]; then
-                            storage_model=$v
+                        p=$(/bin/echo $temp_info | grep "Product:" | cut -f2 -d":" | sed -e 's/^\s*//')
+                        if [ -n $p ]; then
+                            storage_model=$p
                         else
-                            storage_model="Not find"
+                            v=$(/bin/echo $temp_info | grep "Vendor:" | cut -f2 -d":" | sed -e 's/^\s*//')
+                            if [ -n $v ]; then
+                                storage_model=$v
+                            else
+                                storage_model="Not find"
+                            fi
                         fi
                     fi
                 fi

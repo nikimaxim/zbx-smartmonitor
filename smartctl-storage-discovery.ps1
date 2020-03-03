@@ -1,6 +1,6 @@
 <#
     .VERSION
-    0.1
+    0.2
 
     .DESCRIPTION
     Author: Nikitin Maksim
@@ -74,15 +74,20 @@ foreach ($device in $smart_scan) {
                 if ($d) {
                     $storage_model = $d.Trim()
                 } else {
-                    $p = (($info | Select-String "Product:") -replace "Product:")
-                    if ($p) {
-                        $storage_model = $p.Trim()
+                    $m = (($info | Select-String "Model Number:") -replace "Model Number:")
+                    if ($m) {
+                        $storage_model = $m.Trim()
                     } else {
-                        $v = (($info | Select-String "Vendor:") -replace "Vendor:")
-                        if ($v) {
-                            $storage_model = $v.Trim()
+                        $p = (($info | Select-String "Product:") -replace "Product:")
+                        if ($p) {
+                            $storage_model = $p.Trim()
                         } else {
-                            $storage_model = "Not find"
+                            $v = (($info | Select-String "Vendor:") -replace "Vendor:")
+                            if ($v) {
+                                $storage_model = $v.Trim()
+                            } else {
+                                $storage_model = "Not find"
+                            }
                         }
                     }
                 }
