@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2020-03-02T12:56:26Z</date>
+    <date>2020-03-13T05:49:23Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -21,9 +21,30 @@
                     <name>SMART monitoring (smartctl)</name>
                 </application>
             </applications>
+            <items>
+                <item>
+                    <name>Smartctl version</name>
+                    <key>smartctl.version</key>
+                    <delay>1h</delay>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <applications>
+                        <application>
+                            <name>SMART monitoring (smartctl)</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{change()}=1</expression>
+                            <name>Version of smartctl was changed on {HOST.NAME}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
             <discovery_rules>
                 <discovery_rule>
-                    <name>smartctl-storage-discovery</name>
+                    <name>Smartctl storage discovery</name>
                     <key>storage.discovery</key>
                     <delay>1d;1h/1-7,08:00-21:00</delay>
                     <filter>
@@ -37,7 +58,7 @@
                     </filter>
                     <item_prototypes>
                         <item_prototype>
-                            <name>{#STORAGE.NAME}: smartctl</name>
+                            <name>{#STORAGE.NAME}: Smartctl</name>
                             <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
                             <delay>1h;10m/1-7,08:00-21:00</delay>
                             <history>30d</history>
