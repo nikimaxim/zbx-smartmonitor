@@ -15,10 +15,10 @@
 - Get-Host|Select-Object Version
 
 #### Copy powershell script:
-- **github**/smartctl-storage-discovery.ps1 in C:\service\zabbix_agent\smartctl-storage-discovery.ps1
+- **github**/smartctl-storage-discovery.ps1 in C:\service\smartctl-storage-discovery.ps1
 
 #### Check powershell script(Out json): (CMD!)
-- powershell -NoProfile -NoLogo -ExecutionPolicy Bypass -File "C:\service\zabbix_agent\smartctl-storage-discovery.ps1"
+- powershell -NoProfile -NoLogo -ExecutionPolicy Bypass -File "C:\service\smartctl-storage-discovery.ps1"
 
 #### Add from zabbix_agentd.conf "UserParameter" in zabbix_agentd.conf:
 - **github**/zabbix_agentd.conf
@@ -38,14 +38,14 @@
 - https://builds.smartmontools.org/
 
 #### Copy bash script:
-- **github**/smartctl-storage-discovery.sh in /opt/zabbix_s/smartctl-storage-discovery.sh
+- **github**/smartctl-storage-discovery.sh in /opt/zabbix/smartctl-storage-discovery.sh
 
 #### Chmod and Chown
-- chmod -R 750 /opt/zabbix_s/
-- chown -R root:zabbix /opt/zabbix_s/
+- chmod -R 750 /opt/zabbix/
+- chown -R root:zabbix /opt/zabbix/
 
 #### Check bash script(Out json):
-- /opt/zabbix_s/smartctl-storage-discovery.sh
+- /opt/zabbix/smartctl-storage-discovery.sh
 
 #### Add from zabbix_agentd.conf "UserParameter" in zabbix_agentd.conf:
 - **github**/zabbix_agentd.conf
@@ -53,7 +53,7 @@
 #### Add in /etc/sudoers
 - Defaults:zabbix !requiretty
 - zabbix  ALL=(root) NOPASSWD: /usr/sbin/smartctl
-- zabbix  ALL=(root) NOPASSWD: /opt/zabbix_s/smartctl-storage-discovery.sh
+- zabbix  ALL=(root) NOPASSWD: /opt/zabbix/smartctl-storage-discovery.sh
 
 #### Import zabbix template:
 - **github**/Template smartmonitor.xml
