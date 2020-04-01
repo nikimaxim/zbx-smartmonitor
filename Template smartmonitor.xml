@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2020-03-13T05:49:23Z</date>
+    <date>2020-03-31T10:04:28Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -35,7 +35,7 @@
                     </applications>
                     <triggers>
                         <trigger>
-                            <expression>{change()}=1</expression>
+                            <expression>{diff()}=1</expression>
                             <name>Version of smartctl was changed on {HOST.NAME}</name>
                             <priority>INFO</priority>
                         </trigger>
@@ -72,7 +72,7 @@
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{str(&quot;FAILING_NOW&quot;)}=1</expression>
-                                    <name>{#STORAGE.NAME}: one or more SMART attributes are FAILING_NOW</name>
+                                    <name>{#STORAGE.NAME}: One or more SMART attributes are FAILING_NOW</name>
                                     <priority>AVERAGE</priority>
                                     <dependencies>
                                         <dependency>
@@ -80,7 +80,7 @@
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
                                         </dependency>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -117,14 +117,14 @@
                                     <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
                                 </trigger_prototype>
                                 <trigger_prototype>
                                     <expression>{str(&quot;FAILED!&quot;)}=1</expression>
-                                    <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                    <name>{#STORAGE.NAME}: SMART test status FAILED</name>
                                     <priority>AVERAGE</priority>
                                 </trigger_prototype>
                             </trigger_prototypes>
@@ -213,10 +213,10 @@ NVME</description>
                             </master_item>
                             <trigger_prototypes>
                                 <trigger_prototype>
-                                    <expression>{diff()}&lt;&gt;0</expression>
+                                    <expression>{diff()}=1</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
                                     <recovery_expression>{last()}=0 or {delta(864000)}=0</recovery_expression>
-                                    <name>{#STORAGE.NAME}: SMART Reallocated Sectors Count has been registered</name>
+                                    <name>{#STORAGE.NAME}: SMART reallocated sectors count has been registered</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
@@ -225,7 +225,7 @@ NVME</description>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
                                         </dependency>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -291,7 +291,7 @@ NVME</description>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{delta(7d)}&gt;0</expression>
-                                    <name>{#STORAGE.NAME}: SMART Spin Retry Count has been registered</name>
+                                    <name>{#STORAGE.NAME}: SMART spin retry count has been registered</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>
@@ -324,7 +324,7 @@ NVME</description>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{avg(5m)}&gt;{$TEMP_CRIT} and&#13;
-{last()}&lt;100</expression>
+{last()}&lt;=100</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
                                     <recovery_expression>{avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
                                     <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
@@ -342,7 +342,7 @@ NVME</description>
                                         <dependency>
                                             <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
                                             <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&gt;{$TEMP_CRIT} and&#13;
-{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].last()}&lt;100</expression>
+{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].last()}&lt;=100</expression>
                                             <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
                                         </dependency>
                                     </dependencies>
@@ -375,13 +375,13 @@ NVME</description>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{delta(3d)}&gt;0</expression>
-                                    <name>{#STORAGE.NAME}: SMART Current Pending Sector counter incremented</name>
+                                    <name>{#STORAGE.NAME}: SMART current pending sector counter has been registered</name>
                                     <priority>WARNING</priority>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART Reallocated Sectors Count has been registered</name>
-                                            <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].diff()}&lt;&gt;0</expression>
+                                            <name>{#STORAGE.NAME}: SMART reallocated sectors count has been registered</name>
+                                            <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].diff()}=1</expression>
                                             <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].last()}=0 or {Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].delta(864000)}=0</recovery_expression>
                                         </dependency>
                                         <dependency>
@@ -389,7 +389,7 @@ NVME</description>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
                                         </dependency>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -423,7 +423,7 @@ SSD</description>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{delta(7d)}&gt;0</expression>
-                                    <name>{#STORAGE.NAME}: SMART (Offline) Uncorrectable Sector Count has been registered</name>
+                                    <name>{#STORAGE.NAME}: SMART uncorrectable sector count has been registered</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
@@ -432,7 +432,7 @@ SSD</description>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
                                         </dependency>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status: FAILED!</name>
+                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -466,7 +466,7 @@ SSD</description>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{last()}&gt;100 and {delta(1d)}&gt;0</expression>
-                                    <name>{#STORAGE.NAME}: SMART UltraDMA CRC Error Count too high: {ITEM.LASTVALUE}. Check cable!</name>
+                                    <name>{#STORAGE.NAME}: SMART UDMA CRC error count too high has been registered</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>
@@ -475,7 +475,7 @@ SSD</description>
                     </item_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
-                            <name>Smartctl {#STORAGE.NAME} Temperature</name>
+                            <name>{#STORAGE.NAME}: Smartctl temperature</name>
                             <graph_items>
                                 <graph_item>
                                     <color>1A7C11</color>

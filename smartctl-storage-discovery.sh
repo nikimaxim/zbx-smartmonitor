@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #    .VERSION
-#    0.2
+#    0.3
 #
 #    .DESCRIPTION
 #    Author: Nikitin Maksim
@@ -22,26 +22,30 @@ LLDSmart()
 
     IFS=";"
     for device in ${smart_scan}; do
-        device=$(/bin/echo $device | grep -iE "^(\w*|\d*).")
-
-        storage_args=""
+        storage_sn=""
+        storage_model=""
         storage_name=""
         storage_cmd=""
-        storage_type=0
-        storage_model=""
-        storage_sn=""
         storage_smart=0
+        storage_type=0
+        storage_args=""
+
+        device=$(/bin/echo $device | grep -iE "^(\w*|\d*).")
 
         # Remove non-working disks
         # Example: "# /dev/sdb -d scsi"
         if [[ ! ${device} =~ (^\s*#|^#) ]]; then
+            # Extract and concatenate args
             storage_args=$(/bin/echo ${device} | cut -f 1 -d'#' | awk '{print $2 $3}')
+            # Get device name
             storage_name=$(/bin/echo ${device} | cut -f 1 -d'#' | awk '{print $1}')
 
             temp_info=$($CTL -i $storage_name $storage_args)
 
+            # Get device SN
             storage_sn=$(/bin/echo ${temp_info} | grep "Serial Number:" | cut -f2 -d":" | sed -e 's/^\s*//')
 
+            # Check duplicate storage
             if [[ ! -z $storage_sn ]] && [[ ! $disk_sn_all == *"$storage_sn"* ]]; then
                 if [ -z $disk_sn_all ]; then
                     disk_sn_all=$storage_sn
@@ -51,17 +55,18 @@ LLDSmart()
 
                 storage_cmd="${storage_name} ${storage_args}"
 
-                # Device smart
+                # Device SMART
                 if [ -n $(/bin/echo $temp_info | grep -iE "^SMART support is:.+Enabled\s*$") ]; then
                     storage_smart=1
                 fi
 
+                # Device NVMe and SMART
                 if [[ $storage_args == *"nvme"* ]] || [[ $storage_name == *"nvme"* ]]; then
                     storage_type=1
                     storage_smart=1
                 fi
 
-                # Device Model
+                # Get device model(For different types of devices)
                 d=$(/bin/echo $temp_info | grep "Device Model:" | cut -f2 -d":" | sed -e 's/^\s*//')
                 if [ -n $d ]; then
                     storage_model=$d

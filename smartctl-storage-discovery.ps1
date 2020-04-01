@@ -1,6 +1,6 @@
 <#
     .VERSION
-    0.2
+    0.3
 
     .DESCRIPTION
     Author: Nikitin Maksim
@@ -15,7 +15,7 @@
 $CTL = "C:\Program Files\smartmontools\bin\smartctl.exe"
 
 if ((Get-Command $CTL -ErrorAction SilentlyContinue) -eq $null) {
-    Write-Host "Not find smartctl!"
+    Write-Host "Could not find path: $CTL"
     exit
 }
 
@@ -30,27 +30,31 @@ foreach ($device in $smart_scan) {
     # Remove non-working disks
     # Example: "# /dev/sdb -d scsi"
     if (!$device.StartsWith("# ")) {
-        $idx++
-        $storage_args = ""
-        $storage_name = ""
-        $storage_type = 0
-        $storage_model = ""
         $storage_sn = ""
+        $storage_model = ""
+        $storage_name = ""
+        $storage_args = ""
         $storage_smart = 0
+        $storage_type = 0
 
+        # Extract and concatenate args
         if ($device -match '(-d) ([A-Za-z0-9/,\+]+)') {
             $storage_args = $matches[1] + $matches[2]
         }
 
-        $storage_name = $device.Substring(0,$device.IndexOf(" "))
+        # Get device name
+        $storage_name = $device.Substring(0, $device.IndexOf(" "))
         $info = & $CTL "-i" $storage_name $storage_args
 
-        # Device sn
+        # Get device SN
         $sn = ($info | Select-String "serial number:") -ireplace "serial number:"
 
-        # Сheck empty SN
+        # Check empty SN
         if ($sn) {
+            # Number disks
+            $idx++
             $storage_sn = $sn.Trim()
+
             # Check duplicate storage
             if (!$disk_sn_all.Contains($storage_sn)) {
                 if ($disk_sn_all) {
@@ -59,17 +63,18 @@ foreach ($device in $smart_scan) {
                     $disk_sn_all = $storage_sn
                 }
 
-                # Device smart
+                # Device SMART
                 if ($info | Select-String "SMART.+Enabled$") {
                     $storage_smart = 1
                 }
 
+                # Device NVMe and SMART
                 if ($storage_args -like "*nvme*" -or $storage_name -like "*nvme*") {
                     $storage_type = 1
                     $storage_smart = 1
                 }
 
-                # Device Model
+                # Get device model(For different types of devices)
                 $d = (($info | Select-String "Device Model:") -replace "Device Model:")
                 if ($d) {
                     $storage_model = $d.Trim()
@@ -86,7 +91,7 @@ foreach ($device in $smart_scan) {
                             if ($v) {
                                 $storage_model = $v.Trim()
                             } else {
-                                $storage_model = "Not find"
+                                $storage_model = "Not find!"
                             }
                         }
                     }
@@ -101,6 +106,7 @@ foreach ($device in $smart_scan) {
                     $storage_type = 1
                 }
 
+                # Adding a split sign when multiple disks are detected
                 if ($idx -ne 1) {
                     $json += ",`n"
                 }
