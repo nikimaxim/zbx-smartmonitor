@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>4.4</version>
-    <date>2020-03-31T10:04:28Z</date>
+    <version>5.0</version>
+    <date>2020-08-01T17:09:21Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -46,7 +46,7 @@
                 <discovery_rule>
                     <name>Smartctl storage discovery</name>
                     <key>storage.discovery</key>
-                    <delay>1d;1h/1-7,08:00-21:00</delay>
+                    <delay>12h</delay>
                     <filter>
                         <conditions>
                             <condition>
@@ -104,6 +104,8 @@
                                     <type>REGEX</type>
                                     <params>(?:SMART overall-health self-assessment test result:|SMART Health Status:) +\b([\S ]+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                             </preprocessing>
                             <master_item>
@@ -144,12 +146,8 @@
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>(?:Vendor: +(.+)\nProduct:|[Dd]evice [Mm]odel:|[Mm]odel [Nn]umber:) +(.+)
-\1 \2</params>
-                                </step>
-                                <step>
-                                    <type>LTRIM</type>
-                                    <params><![CDATA[ ]]></params>
+                                    <params>(?:Vendor:|Product:|Device [Mm]odel:|Model [Nn]umber:).+  (.+)
+\1</params>
                                 </step>
                             </preprocessing>
                             <master_item>
@@ -171,7 +169,7 @@
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>[Ss]erial [Nn]umber:\s+([\d\w-]+)
+                                    <params>(?:Serial [Nn]umber:).+ ([\d\w-]+)
 \1</params>
                                 </step>
                             </preprocessing>
@@ -206,6 +204,8 @@ NVME</description>
                                     <type>REGEX</type>
                                     <params>(?:5 Reallocated|Elements in grown defect list:|5 Retired_Block_Count).+ ([0-9]+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                             </preprocessing>
                             <master_item>
@@ -259,6 +259,8 @@ NVME</description>
                                 <step>
                                     <type>MULTIPLIER</type>
                                     <params>3600</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                             </preprocessing>
                             <master_item>
@@ -313,9 +315,15 @@ NVME</description>
                             </applications>
                             <preprocessing>
                                 <step>
+                                    <type>JAVASCRIPT</type>
+                                    <params>return value.replace(/\s\(.+\)/g, ' ')</params>
+                                </step>
+                                <step>
                                     <type>REGEX</type>
-                                    <params>(?:194 Temperature[^(\n]+|190 Airflow_Temperature[^(\n]+|Drive Temperature:|Temperature:|190 Temperature_Case).+  ([0-9]+)
+                                    <params>(?:190 Temperature|190 Airflow_Temperature|194 Temperature|Drive Temperature:|Temperature:).+ ([0-9]+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                             </preprocessing>
                             <master_item>
