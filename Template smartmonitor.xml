@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-08-01T17:09:21Z</date>
+    <date>2020-08-14T11:54:38Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -69,6 +69,12 @@
                                     <name>SMART monitoring (smartctl)</name>
                                 </application>
                             </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JAVASCRIPT</type>
+                                    <params>return value.replace(/\s\(.+\)|\s\[.+\]|[\u00A0]/g, '')    // Deleting data in brackets and spaces</params>
+                                </step>
+                            </preprocessing>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{str(&quot;FAILING_NOW&quot;)}=1</expression>
@@ -94,6 +100,8 @@
                             <delay>0</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
+                            <description>HDD&#13;
+SSD</description>
                             <applications>
                                 <application>
                                     <name>SMART monitoring (smartctl)</name>
@@ -138,6 +146,9 @@
                             <delay>0</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
+                            <description>HDD&#13;
+SSD&#13;
+NVME</description>
                             <applications>
                                 <application>
                                     <name>SMART monitoring (smartctl)</name>
@@ -161,6 +172,9 @@
                             <delay>0</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
+                            <description>HDD&#13;
+SSD&#13;
+NVME</description>
                             <applications>
                                 <application>
                                     <name>SMART monitoring (smartctl)</name>
@@ -192,8 +206,7 @@
                             <key>storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct]</key>
                             <delay>0</delay>
                             <description>HDD&#13;
-SSD&#13;
-NVME</description>
+SSD</description>
                             <applications>
                                 <application>
                                     <name>SMART monitoring (smartctl)</name>
@@ -248,12 +261,8 @@ NVME</description>
                             </applications>
                             <preprocessing>
                                 <step>
-                                    <type>JAVASCRIPT</type>
-                                    <params>return value.replace(/[\u00A0]/g, '')</params>
-                                </step>
-                                <step>
                                     <type>REGEX</type>
-                                    <params>(?:9 Power_On_Hours|Power On Hours:).+ ([^\(\d*\)]\d+)
+                                    <params>(?:9 Power_On_Hours|Power On Hours:|[Nn]umber of hours powered up|Accumulated power on time).+ ([0-9]+)
 \1</params>
                                 </step>
                                 <step>
@@ -281,7 +290,7 @@ NVME</description>
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>10 Spin_Retry_Count.+ ([0-9]+)
+                                    <params>(?:10 Spin_Retry_Count).+ ([0-9]+)
 \1</params>
                                     <error_handler>CUSTOM_ERROR</error_handler>
                                     <error_handler_params>Not supported</error_handler_params>
@@ -315,10 +324,6 @@ NVME</description>
                             </applications>
                             <preprocessing>
                                 <step>
-                                    <type>JAVASCRIPT</type>
-                                    <params>return value.replace(/\s\(.+\)/g, ' ')</params>
-                                </step>
-                                <step>
                                     <type>REGEX</type>
                                     <params>(?:190 Temperature|190 Airflow_Temperature|194 Temperature|Drive Temperature:|Temperature:).+ ([0-9]+)
 \1</params>
@@ -335,7 +340,7 @@ NVME</description>
 {last()}&lt;=100</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
                                     <recovery_expression>{avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
-                                    <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
+                                    <name>{#STORAGE.NAME}: Disk temperature CRITICAL</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>
@@ -343,12 +348,12 @@ NVME</description>
                                     <expression>{avg(5m)}&gt;{$TEMP_WARN}</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
                                     <recovery_expression>{avg(5m)}&lt;{$TEMP_WARN}-3</recovery_expression>
-                                    <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
+                                    <name>{#STORAGE.NAME}: Disk temperature WARNING</name>
                                     <priority>WARNING</priority>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: Disk temperature: {ITEM.LASTVALUE}</name>
+                                            <name>{#STORAGE.NAME}: Disk temperature CRITICAL</name>
                                             <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&gt;{$TEMP_CRIT} and&#13;
 {Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].last()}&lt;=100</expression>
                                             <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
@@ -371,7 +376,7 @@ NVME</description>
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>197 Current_Pending_Sector.+ ([0-9]+)
+                                    <params>(?:197 Current_Pending_Sector|197 ).+ ([0-9]+)
 \1</params>
                                     <error_handler>CUSTOM_ERROR</error_handler>
                                     <error_handler_params>Not supported</error_handler_params>
@@ -419,7 +424,7 @@ SSD</description>
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>Offline_Uncorrectable.+ ([0-9]+)
+                                    <params>(?:Offline_Uncorrectable).+ ([0-9]+)
 \1</params>
                                     <error_handler>CUSTOM_ERROR</error_handler>
                                     <error_handler_params>Not supported</error_handler_params>
@@ -453,7 +458,8 @@ SSD</description>
                             <key>storage[&quot;{#STORAGE.CMD}&quot;, 199/218 UDMA_CRC_Error]</key>
                             <delay>0</delay>
                             <description>HDD&#13;
-SSD</description>
+SSD&#13;
+NVME</description>
                             <applications>
                                 <application>
                                     <name>SMART monitoring (smartctl)</name>
@@ -475,6 +481,42 @@ SSD</description>
                                 <trigger_prototype>
                                     <expression>{last()}&gt;100 and {delta(1d)}&gt;0</expression>
                                     <name>{#STORAGE.NAME}: SMART UDMA CRC error count too high has been registered</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#STORAGE.NAME}: ID 231 SSD life left</name>
+                            <type>DEPENDENT</type>
+                            <key>storage[&quot;{#STORAGE.CMD}&quot;, 231 SSD_Life_Left]</key>
+                            <delay>0</delay>
+                            <units>%</units>
+                            <description>SSD&#13;
+NVME</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(?:231 SSD_Life_Left |Available Spare: |231 ).+ ([0-9]+)
+\1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&lt;=10</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{last()}&gt;10</recovery_expression>
+                                    <name>{#STORAGE.NAME}: SMART SSD life left</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>

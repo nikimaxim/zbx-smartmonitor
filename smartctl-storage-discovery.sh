@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #    .VERSION
-#    0.3
+#    0.4
 #
 #    .DESCRIPTION
 #    Author: Nikitin Maksim
@@ -14,6 +14,10 @@
 
 CTL='/usr/sbin/smartctl'
 
+if [[ ! -x "$CTL" ]]; then
+    echo "Could not find path: $CTL"
+    exit
+fi
 
 LLDSmart()
 {
@@ -60,12 +64,6 @@ LLDSmart()
                     storage_smart=1
                 fi
 
-                # Device NVMe and SMART
-                if [[ $storage_args == *"nvme"* ]] || [[ $storage_name == *"nvme"* ]]; then
-                    storage_type=1
-                    storage_smart=1
-                fi
-
                 # Get device model(For different types of devices)
                 d=$(/bin/echo $temp_info | grep "Device Model:" | cut -f2 -d":" | sed -e 's/^\s*//')
                 if [ -n $d ]; then
@@ -89,12 +87,18 @@ LLDSmart()
                     fi
                 fi
 
-                # 0 is for HDD
-                # 1 is for SSD/NVMe
-                if [ -n $(/bin/echo $temp_info | grep -iE "^Rotation Rate:\s*rpm\s*$") ]; then
+                # Get device type:
+                # - 0 is for HDD
+                # - 1 is for SSD
+                # - 1 is for NVMe
+                if [ -n "$(/bin/echo $temp_info | grep -iE "^Rotation Rate:.*rpm.*$")" ]; then
                     storage_type=0
-                elif [ -n $(/bin/echo $temp_info | grep -iE "^Rotation Rate:\s*Solid State Device\s*$") ]; then
+                elif [ -n "$(/bin/echo $temp_info | grep -iE "^Rotation Rate:\s*Solid State Device\s*$")" ]; then
                     storage_type=1
+                elif [[ $storage_args == *"nvme"* ]] || [[ $storage_name == *"nvme"* ]]; then
+                    # Device NVMe and SMART
+                    storage_type=1
+                    storage_smart=1
                 fi
 
                 storage_info="{\"{#STORAGE.SN}\":\"${storage_sn}\",\"{#STORAGE.MODEL}\":\"${storage_model}\",\"{#STORAGE.NAME}\":\"${storage_name}\",\"{#STORAGE.CMD}\":\"${storage_cmd}\",\"{#STORAGE.SMART}\":\"${storage_smart}\",\"{#STORAGE.TYPE}\":\"${storage_type}\"},"

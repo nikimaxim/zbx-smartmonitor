@@ -36,6 +36,7 @@
 
 #### Get utils smartmontools
 - https://builds.smartmontools.org/
+- Installing from package: Ubuntu(sudo apt install smartmontools), CentOS(yum install smartmontools)
 
 #### Copy bash script:
 - **github**/smartctl-storage-discovery.sh in /opt/zabbix/smartctl-storage-discovery.sh

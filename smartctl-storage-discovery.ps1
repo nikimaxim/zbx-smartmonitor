@@ -1,6 +1,6 @@
 <#
     .VERSION
-    0.3
+    0.4
 
     .DESCRIPTION
     Author: Nikitin Maksim
@@ -68,12 +68,6 @@ foreach ($device in $smart_scan) {
                     $storage_smart = 1
                 }
 
-                # Device NVMe and SMART
-                if ($storage_args -like "*nvme*" -or $storage_name -like "*nvme*") {
-                    $storage_type = 1
-                    $storage_smart = 1
-                }
-
                 # Get device model(For different types of devices)
                 $d = (($info | Select-String "Device Model:") -replace "Device Model:")
                 if ($d) {
@@ -97,13 +91,19 @@ foreach ($device in $smart_scan) {
                     }
                 }
 
-                # 0 is for HDD
-                # 1 is for SSD/NVMe
+                # Get device type:
+                # - 0 is for HDD
+                # - 1 is for SSD
+                # - 1 is for NVMe
                 $rotation_rate = $info | Select-String "Rotation Rate:"
                 if ($rotation_rate -like "*rpm*") {
                     $storage_type = 0
                 } elseif ($rotation_rate -like "*Solid State Device*") {
                     $storage_type = 1
+                } elseif ($storage_args -like "*nvme*" -or $storage_name -like "*nvme*") {
+                    # Device NVMe and SMART
+                    $storage_type = 1
+                    $storage_smart = 1
                 }
 
                 # Adding a split sign when multiple disks are detected
