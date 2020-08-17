@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-08-17T07:32:47Z</date>
+    <date>2020-08-17T07:37:51Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -502,7 +502,7 @@ NVME</description>
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>(?:231 SSD_Life_Left |Available Spare: |231\s+\w+_\w+ ).+ ([0-9]+)
+                                    <params>(?:231 SSD_Life_Left |Available Spare: |231\s+\w+_\w+).+ ([0-9]+)
 \1</params>
                                     <error_handler>CUSTOM_ERROR</error_handler>
                                     <error_handler_params>Not supported</error_handler_params>
