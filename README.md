@@ -1,7 +1,7 @@
 ## Zabbix smartmonitor storage
 - https://github.com/nikimaxim/zbx-smartmonitor.git
 
-### Windows Install 
+### Installing for windows
 #### Requirements:
 - OS: Windows 7, 2008R2 and later
 - PowerShell: 5.1 and later
@@ -12,13 +12,13 @@
 - https://builds.smartmontools.org/
 
 #### Check correct versions PowerShell: (Execute in PowerShell!) (Requirements!)
-- Get-Host|Select-Object Version
+- ```Get-Host|Select-Object Version```
 
 #### Copy powershell script:
 - **github**/smartctl-storage-discovery.ps1 in C:\service\smartctl-storage-discovery.ps1
 
 #### Check powershell script(Out json): (CMD!)
-- powershell -NoProfile -NoLogo -ExecutionPolicy Bypass -File "C:\service\smartctl-storage-discovery.ps1"
+- ```powershell -NoProfile -NoLogo -ExecutionPolicy Bypass -File "C:\service\smartctl-storage-discovery.ps1"```
 
 #### Add from zabbix_agentd.conf "UserParameter" in zabbix_agentd.conf:
 - **github**/zabbix_agentd.conf
@@ -28,7 +28,7 @@
 
 <br/>
 
-### Linux Install 
+### Installing for linux 
 #### Requirements:
 - OS: RedHat family
 - Zabbix-agent: 4.0 and later
@@ -42,11 +42,11 @@
 - **github**/smartctl-storage-discovery.sh in /opt/zabbix/smartctl-storage-discovery.sh
 
 #### Chmod and Chown
-- chmod -R 750 /opt/zabbix/
-- chown -R root:zabbix /opt/zabbix/
+- ```chmod -R 750 /opt/zabbix/```
+- ```chown -R root:zabbix /opt/zabbix/```
 
 #### Check bash script(Out json):
-- /opt/zabbix/smartctl-storage-discovery.sh
+- ```/opt/zabbix/smartctl-storage-discovery.sh```
 
 #### Add from zabbix_agentd.conf "UserParameter" in zabbix_agentd.conf:
 - **github**/zabbix_agentd.conf
