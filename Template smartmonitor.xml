@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-08-17T07:37:51Z</date>
+    <date>2020-12-17T07:27:23Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -11,6 +11,18 @@
         <template>
             <template>Template SMARTMONTOOLS</template>
             <name>Template SMARTMONTOOLS</name>
+            <description>#&#13;
+#    .VERSION&#13;
+#    0.4&#13;
+#&#13;
+#    .DESCRIPTION&#13;
+#    Author: Nikitin Maksim&#13;
+#    Github: https://github.com/nikimaxim/zbx-smartmonitor.git&#13;
+#    Note: Zabbix lld for smartctl&#13;
+#&#13;
+#    .TESTING&#13;
+#   Smartmontools: 7.1 and later&#13;
+#</description>
             <groups>
                 <group>
                     <name>Templates Users</name>
@@ -504,6 +516,13 @@ NVME</description>
                                     <type>REGEX</type>
                                     <params>(?:231 SSD_Life_Left |Available Spare: |231\s+\w+_\w+).+ ([0-9]+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
+                                </step>
+                                <step>
+                                    <type>IN_RANGE</type>
+                                    <params>0
+100</params>
                                     <error_handler>CUSTOM_ERROR</error_handler>
                                     <error_handler_params>Not supported</error_handler_params>
                                 </step>
