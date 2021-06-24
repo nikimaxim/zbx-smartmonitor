@@ -47,7 +47,7 @@ LLDSmart()
             temp_info=$($CTL -i $storage_name $storage_args)
 
             # Get device SN
-            storage_sn=$(/bin/echo ${temp_info} | grep "Serial Number:" | cut -f2 -d":" | sed -e 's/^\s*//')
+            storage_sn=$(/bin/echo ${temp_info} | grep -i "Serial Number:" | cut -f2 -d":" | sed -e 's/^\s*//')
 
             # Check duplicate storage
             if [[ ! -z $storage_sn ]] && [[ ! $disk_sn_all == *"$storage_sn"* ]]; then
