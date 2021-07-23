@@ -1,6 +1,6 @@
 <#
     .VERSION
-    0.4
+    0.7
 
     .DESCRIPTION
     Author: Nikitin Maksim
@@ -10,6 +10,7 @@
     .TESTING
     PowerShell: 5.1 and later
     Smartmontools: 7.1 and later
+    OS: Windows 7, Windows 8, Windows 10
 #>
 
 $CTL = "C:\Program Files\smartmontools\bin\smartctl.exe"
@@ -94,7 +95,7 @@ foreach ($device in $smart_scan) {
                 # Get device type:
                 # - 0 is for HDD
                 # - 1 is for SSD
-                # - 1 is for NVMe
+                # - 2 is for NVMe
                 $rotation_rate = $info | Select-String "Rotation Rate:"
                 if ($rotation_rate -like "*rpm*") {
                     $storage_type = 0
@@ -102,7 +103,7 @@ foreach ($device in $smart_scan) {
                     $storage_type = 1
                 } elseif ($storage_args -like "*nvme*" -or $storage_name -like "*nvme*") {
                     # Device NVMe and SMART
-                    $storage_type = 1
+                    $storage_type = 2
                     $storage_smart = 1
                 }
 

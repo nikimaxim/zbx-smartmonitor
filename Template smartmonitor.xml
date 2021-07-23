@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-12-17T07:27:23Z</date>
+    <date>2021-07-23T08:27:01Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -13,7 +13,7 @@
             <name>Template SMARTMONTOOLS</name>
             <description>#&#13;
 #    .VERSION&#13;
-#    0.4&#13;
+#    0.7&#13;
 #&#13;
 #    .DESCRIPTION&#13;
 #    Author: Nikitin Maksim&#13;
@@ -70,6 +70,46 @@
                     </filter>
                     <item_prototypes>
                         <item_prototype>
+                            <name>{#STORAGE.NAME}: Error сount</name>
+                            <type>DEPENDENT</type>
+                            <key>storage.error[&quot;{#STORAGE.CMD}&quot;]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <description>HDD&#13;
+SSD&#13;
+NVME</description>
+                            <applications>
+                                <application>
+                                    <name>SMART monitoring (smartctl)</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JAVASCRIPT</type>
+                                    <params>if (value.search(&quot;No Errors Logged&quot;) != -1) {
+    return &quot;No Errors Logged&quot;
+} else if (value.search(&quot;ATA Error Count:&quot;) != -1) {
+    return value.match(/(?:ATA Error Count:).+\b([0-9]+)/i)[1]
+} else {
+    return &quot;Not supported&quot;
+}
+</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{str(No Errors Logged)}=0 and {str(Not supported)}=0</expression>
+                                    <name>{#STORAGE.NAME}: SMART error status is not &quot;No Errors Logged&quot;</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
                             <name>{#STORAGE.NAME}: Smartctl</name>
                             <key>storage.get[&quot;{#STORAGE.CMD}&quot;]</key>
                             <delay>1h;10m/1-7,08:00-21:00</delay>
@@ -90,15 +130,12 @@
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{str(&quot;FAILING_NOW&quot;)}=1</expression>
-                                    <name>{#STORAGE.NAME}: One or more SMART attributes are FAILING_NOW</name>
+                                    <name>{#STORAGE.NAME}: One or more SMART attributes are &quot;FAILING_NOW&quot;</name>
                                     <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
-                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
-                                        </dependency>
-                                        <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
+                                            <name>{#STORAGE.NAME}: SMART test status is &quot;FAILED&quot;</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -133,20 +170,8 @@ SSD</description>
                             </master_item>
                             <trigger_prototypes>
                                 <trigger_prototype>
-                                    <expression>{str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
-                                    <name>{#STORAGE.NAME}: SMART status is not OK</name>
-                                    <priority>WARNING</priority>
-                                    <manual_close>YES</manual_close>
-                                    <dependencies>
-                                        <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
-                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
-                                        </dependency>
-                                    </dependencies>
-                                </trigger_prototype>
-                                <trigger_prototype>
                                     <expression>{str(&quot;FAILED!&quot;)}=1</expression>
-                                    <name>{#STORAGE.NAME}: SMART test status FAILED</name>
+                                    <name>{#STORAGE.NAME}: SMART test status is &quot;FAILED&quot;</name>
                                     <priority>AVERAGE</priority>
                                 </trigger_prototype>
                             </trigger_prototypes>
@@ -171,6 +196,8 @@ NVME</description>
                                     <type>REGEX</type>
                                     <params>(?:Vendor:|Product:|Device [Mm]odel:|Model [Nn]umber:).+  (.+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                             </preprocessing>
                             <master_item>
@@ -197,6 +224,8 @@ NVME</description>
                                     <type>REGEX</type>
                                     <params>(?:Serial [Nn]umber:).+ ([\d\w-]+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                             </preprocessing>
                             <master_item>
@@ -246,11 +275,7 @@ SSD</description>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
-                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
-                                        </dependency>
-                                        <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
+                                            <name>{#STORAGE.NAME}: SMART test status is &quot;FAILED&quot;</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -276,6 +301,8 @@ NVME</description>
                                     <type>REGEX</type>
                                     <params>(?:9 Power_On_Hours|Power On Hours:|[Nn]umber of hours powered up|Accumulated power on time).+ ([0-9]+)
 \1</params>
+                                    <error_handler>CUSTOM_ERROR</error_handler>
+                                    <error_handler_params>Not supported</error_handler_params>
                                 </step>
                                 <step>
                                     <type>MULTIPLIER</type>
@@ -352,7 +379,7 @@ NVME</description>
 {last()}&lt;=100</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
                                     <recovery_expression>{avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
-                                    <name>{#STORAGE.NAME}: Disk temperature CRITICAL</name>
+                                    <name>{#STORAGE.NAME}: Disk temperature is &quot;CRITICAL&quot;</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                 </trigger_prototype>
@@ -360,12 +387,12 @@ NVME</description>
                                     <expression>{avg(5m)}&gt;{$TEMP_WARN}</expression>
                                     <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
                                     <recovery_expression>{avg(5m)}&lt;{$TEMP_WARN}-3</recovery_expression>
-                                    <name>{#STORAGE.NAME}: Disk temperature WARNING</name>
+                                    <name>{#STORAGE.NAME}: Disk temperature is &quot;WARNING&quot;</name>
                                     <priority>WARNING</priority>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: Disk temperature CRITICAL</name>
+                                            <name>{#STORAGE.NAME}: Disk temperature is &quot;CRITICAL&quot;</name>
                                             <expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&gt;{$TEMP_CRIT} and&#13;
 {Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].last()}&lt;=100</expression>
                                             <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 190/194 Temperature_Celsius].avg(5m)}&lt;{$TEMP_CRIT}-3</recovery_expression>
@@ -410,11 +437,7 @@ NVME</description>
                                             <recovery_expression>{Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].last()}=0 or {Template SMARTMONTOOLS:storage[&quot;{#STORAGE.CMD}&quot;, 05 Reallocated_Sector_Ct].delta(864000)}=0</recovery_expression>
                                         </dependency>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
-                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
-                                        </dependency>
-                                        <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
+                                            <name>{#STORAGE.NAME}: SMART test status is &quot;FAILED&quot;</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -447,17 +470,13 @@ SSD</description>
                             </master_item>
                             <trigger_prototypes>
                                 <trigger_prototype>
-                                    <expression>{delta(7d)}&gt;0</expression>
+                                    <expression>{diff()}=1</expression>
                                     <name>{#STORAGE.NAME}: SMART uncorrectable sector count has been registered</name>
                                     <priority>AVERAGE</priority>
                                     <manual_close>YES</manual_close>
                                     <dependencies>
                                         <dependency>
-                                            <name>{#STORAGE.NAME}: SMART status is not OK</name>
-                                            <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SATA&quot;})}=0 and {Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str({$SMARTCTL_OK_STATUS:&quot;SAS&quot;})}=0</expression>
-                                        </dependency>
-                                        <dependency>
-                                            <name>{#STORAGE.NAME}: SMART test status FAILED</name>
+                                            <name>{#STORAGE.NAME}: SMART test status is &quot;FAILED&quot;</name>
                                             <expression>{Template SMARTMONTOOLS:storage.health[&quot;{#STORAGE.CMD}&quot;].str(&quot;FAILED!&quot;)}=1</expression>
                                         </dependency>
                                     </dependencies>
@@ -559,14 +578,6 @@ NVME</description>
                 </discovery_rule>
             </discovery_rules>
             <macros>
-                <macro>
-                    <macro>{$SMARTCTL_OK_STATUS:&quot;SAS&quot;}</macro>
-                    <value>OK</value>
-                </macro>
-                <macro>
-                    <macro>{$SMARTCTL_OK_STATUS:&quot;SATA&quot;}</macro>
-                    <value>PASSED</value>
-                </macro>
                 <macro>
                     <macro>{$TEMP_CRIT}</macro>
                     <value>65</value>

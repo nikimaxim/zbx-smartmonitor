@@ -30,7 +30,7 @@
 
 ### Installing for linux 
 #### Requirements:
-- OS: RedHat family
+- OS: Linux
 - Zabbix-agent: 4.0 and later
 - Smartmontools: 7.1 and later
 
@@ -55,6 +55,40 @@
 - Defaults:zabbix !requiretty
 - zabbix  ALL=(root) NOPASSWD: /usr/sbin/smartctl
 - zabbix  ALL=(root) NOPASSWD: /opt/zabbix/smartctl-storage-discovery.sh
+
+#### Import zabbix template:
+- **github**/Template smartmonitor.xml
+
+<br/>
+
+### Installing for MacOS(In developing!!!)
+#### Requirements:
+- OS: MacOS
+- Zabbix-agent: 4.0 and later
+- Smartmontools: 7.1 and later
+
+#### Get utils smartmontools
+- https://builds.smartmontools.org/
+
+#### Copy bash script:
+- **github**/smartctl-storage-discovery.sh in /usr/local/etc/zabbix/smartctl-storage-discovery.sh
+
+#### Chmod and Chown
+- ```chmod 755 /usr/local/etc/zabbix/smartctl-storage-discovery.sh```
+
+#### Check bash script(Out json):
+- ```/usr/local/etc/zabbix/smartctl-storage-discovery.sh```
+
+#### Set UnsafeUserParameters=1
+(In developing!!!)
+
+#### Add from zabbix_agentd.conf "UserParameter" in zabbix_agentd.conf:
+- **github**/zabbix_agentd.conf
+
+#### Add in /etc/sudoers OR visudo
+- Defaults:zabbix !requiretty
+- zabbix  ALL=(root) NOPASSWD: /usr/local/sbin/smartctl
+- zabbix  ALL=(root) NOPASSWD: /usr/local/etc/zabbix/smartctl-storage-discovery.sh
 
 #### Import zabbix template:
 - **github**/Template smartmonitor.xml
