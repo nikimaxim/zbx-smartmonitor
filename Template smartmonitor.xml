@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-07-23T08:27:01Z</date>
+    <date>2021-09-23T09:16:55Z</date>
     <groups>
         <group>
             <name>Templates Users</name>
@@ -13,7 +13,7 @@
             <name>Template SMARTMONTOOLS</name>
             <description>#&#13;
 #    .VERSION&#13;
-#    0.7&#13;
+#    0.8&#13;
 #&#13;
 #    .DESCRIPTION&#13;
 #    Author: Nikitin Maksim&#13;
@@ -364,7 +364,7 @@ NVME</description>
                             <preprocessing>
                                 <step>
                                     <type>REGEX</type>
-                                    <params>(?:190 Temperature|190 Airflow_Temperature|194 Temperature|Drive Temperature:|Temperature:).+ ([0-9]+)
+                                    <params>(?:190 Temperature|190 Airflow_Temperature|194 Temperature|Drive Temperature:|Temperature:).+   \w* (\d+)
 \1</params>
                                     <error_handler>CUSTOM_ERROR</error_handler>
                                     <error_handler_params>Not supported</error_handler_params>
