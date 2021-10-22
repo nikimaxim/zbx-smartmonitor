@@ -51,10 +51,14 @@
 #### Add from zabbix_agentd.conf "UserParameter" in zabbix_agentd.conf:
 - **github**/zabbix_agentd.conf
 
-#### Add in /etc/sudoers
-- Defaults:zabbix !requiretty
-- zabbix  ALL=(root) NOPASSWD: /usr/sbin/smartctl
-- zabbix  ALL=(root) NOPASSWD: /opt/zabbix/smartctl-storage-discovery.sh
+#### Set up sudoers
+
+Copy over the _etc_sudoers.d_zabbix_smartmonitor to /etc/sudoers.d/zabbix_smartmonitor, e.g.
+```
+scp -p _etc_sudoers.d_zabbix_smartmonitor 1.2.3.4:
+ssh 1.2.3.4 "sudo mv _etc_sudoers.d_zabbix_smartmonitor /etc/sudoers.d/zabbix_smartmonitor && sudo chown root: /etc/sudoers.d/zabbix_smartmonitor"
+```
+
 
 #### Import zabbix template:
 - **github**/Template smartmonitor.xml
